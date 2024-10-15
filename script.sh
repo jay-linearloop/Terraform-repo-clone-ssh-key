@@ -21,6 +21,7 @@ verify_nvm() {
     fi
   fi
 }
+
 # Update package index and install dependencies
 echo "Installing dependencies..."
 sudo apt update
@@ -44,7 +45,7 @@ chmod 600 ~/.ssh/id_rsa
 echo "Cloning private Git repository..."
 git clone "${GITHUB_REPO}" /var/www/app || (cd /var/www/app && git pull)
 
-# Install NVM
+Install NVM
 echo "Installing NVM..."
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 
@@ -67,7 +68,20 @@ echo "Sourcing .bashrc..."
 source ~/.bashrc
 
 # Verify that NVM is loaded
-verify_nvm
+if check_command nvm; then
+  echo "NVM is loaded."
+else
+  echo "NVM is not loaded. Trying to load manually..."
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  
+  if check_command nvm; then
+    echo "NVM successfully loaded."
+  else
+    echo "Failed to load NVM. Exiting."
+    exit 1
+  fi
+fi
 
 # Install Node.js
 echo "Installing Node.js..."
@@ -121,7 +135,7 @@ echo "Sourcing .bashrc again..."
 source ~/.bashrc
 
 # Check NVM and PM2 one more time to confirm they are working
-verify_nvm
+check_command nvm && echo "NVM is available." || { echo "NVM is not available. Exiting."; exit 1; }
 check_command pm2 && echo "PM2 is available." || { echo "PM2 is not available. Exiting."; exit 1; }
 
 echo "Setup completed successfully!"

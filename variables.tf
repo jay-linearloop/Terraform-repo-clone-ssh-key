@@ -43,3 +43,8 @@ variable "node_version" {
 variable "domain_name" {
   description = "Domain name for Nginx configuration"
 }
+
+variable "github_pat" {
+  description = "GitHub Personal Access Token"
+  type        = string
+}
